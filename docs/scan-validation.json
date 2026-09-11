@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-09-11T18:41:48.825Z",
+  "source": "https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg",
+  "credit": "Red Apple by Abhijit Tembhekar, CC BY 2.0",
+  "result": {
+    "items": [
+      {
+        "name": "red apple",
+        "quantity": "1",
+        "category": "Fruit"
+      }
+    ],
+    "note": "Please confirm the ingredient names, amounts, and package labels."
+  }
+}

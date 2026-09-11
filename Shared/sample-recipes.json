@@ -1,0 +1,130 @@
+[
+  {
+    "title": "Lemony chickpea skillet",
+    "description": "Golden chickpeas, soft tomatoes, and a bright squeeze of lemon.",
+    "minutes": 15,
+    "servings": 2,
+    "ingredients": [
+      {
+        "pantryID": "chickpeas",
+        "name": "Canned chickpeas",
+        "quantity": "1 can, drained"
+      },
+      {
+        "pantryID": "tomatoes",
+        "name": "Cherry tomatoes",
+        "quantity": "1 cup"
+      },
+      {
+        "pantryID": "spinach",
+        "name": "Spinach",
+        "quantity": "2 handfuls"
+      },
+      {
+        "pantryID": "oil",
+        "name": "Olive oil",
+        "quantity": "1 tbsp"
+      },
+      {
+        "pantryID": "lemon",
+        "name": "Lemon",
+        "quantity": "\u00bd"
+      }
+    ],
+    "steps": [
+      "Rinse and drain the chickpeas. Wash the tomatoes, spinach, and lemon. Halve the tomatoes.",
+      "Warm the olive oil in a skillet over medium heat. Add the tomatoes and cook for 4\u20135 minutes until softened.",
+      "Add the chickpeas and cook for 3\u20134 minutes, stirring, until hot throughout.",
+      "Fold in the spinach and cook for 1\u20132 minutes until wilted. Turn off the heat, squeeze over half the lemon, and divide between two bowls."
+    ],
+    "why": "Gives your use-soon spinach and tomatoes the starring roles, with canned chickpeas for a quick meal.",
+    "isSample": true
+  },
+  {
+    "title": "A very green rice bowl",
+    "description": "Warm rice, wilted greens, and chickpeas with lemon.",
+    "minutes": 30,
+    "servings": 2,
+    "ingredients": [
+      {
+        "pantryID": "rice",
+        "name": "Dry rice",
+        "quantity": "\u00be cup"
+      },
+      {
+        "pantryID": "chickpeas",
+        "name": "Canned chickpeas",
+        "quantity": "\u00bd can, drained"
+      },
+      {
+        "pantryID": "spinach",
+        "name": "Spinach",
+        "quantity": "2 handfuls"
+      },
+      {
+        "pantryID": "oil",
+        "name": "Olive oil",
+        "quantity": "1 tbsp"
+      },
+      {
+        "pantryID": "lemon",
+        "name": "Lemon",
+        "quantity": "\u00bd"
+      },
+      {
+        "pantryID": "water",
+        "name": "Water",
+        "quantity": "As directed on rice package"
+      }
+    ],
+    "steps": [
+      "Cook the rice with water according to its package directions. Choose a rice that cooks within 25 minutes for this recipe.",
+      "Rinse and drain the chickpeas. Wash the spinach and lemon.",
+      "Warm the oil in a skillet over medium heat. Stir in the chickpeas and cook for 3\u20134 minutes until hot throughout.",
+      "Add the spinach and stir for 1\u20132 minutes until wilted. Divide the cooked rice between bowls, top with the chickpeas and greens, then squeeze over lemon."
+    ],
+    "why": "Uses the spinach you marked to use soon, with staples you already have. Check the rice package for its cooking time.",
+    "isSample": true
+  },
+  {
+    "title": "Tomato & chickpea salad",
+    "description": "A bright, simple bowl for a day when the stove can wait.",
+    "minutes": 10,
+    "servings": 2,
+    "ingredients": [
+      {
+        "pantryID": "chickpeas",
+        "name": "Canned chickpeas",
+        "quantity": "1 can, drained"
+      },
+      {
+        "pantryID": "tomatoes",
+        "name": "Cherry tomatoes",
+        "quantity": "1 cup"
+      },
+      {
+        "pantryID": "spinach",
+        "name": "Spinach",
+        "quantity": "2 handfuls"
+      },
+      {
+        "pantryID": "oil",
+        "name": "Olive oil",
+        "quantity": "1 tbsp"
+      },
+      {
+        "pantryID": "lemon",
+        "name": "Lemon",
+        "quantity": "\u00bd"
+      }
+    ],
+    "steps": [
+      "Rinse and drain the canned chickpeas. Wash and dry the tomatoes, spinach, and lemon.",
+      "Halve the tomatoes and roughly chop the spinach. Place in a bowl with the chickpeas.",
+      "Squeeze half the lemon into a small cup and whisk with the olive oil. Remove any lemon seeds.",
+      "Toss the dressing through the salad and divide between two bowls. Serve straight away."
+    ],
+    "why": "A no-cook way to use your spinach and tomatoes. Canned chickpeas are ready to eat after draining and rinsing.",
+    "isSample": true
+  }
+]

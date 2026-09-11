@@ -1,0 +1,1 @@
+{"name":"savor-api","version":"0.1.0","private":true,"type":"module","engines":{"node":">=22"},"scripts":{"start":"node --env-file=.env index.mjs","setup":"node setup.mjs","test":"node --test test/*.test.mjs"}}

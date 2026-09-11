@@ -1,0 +1,3 @@
+SAVOR_SERVER_URL = http:/$()/localhost:8788
+SAVOR_CLIENT_TOKEN =
+#include? "Local.xcconfig"
