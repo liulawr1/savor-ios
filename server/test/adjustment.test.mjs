@@ -7,8 +7,8 @@ import { validateAdjustment, adjustmentRequest, validateAdjustmentOutput, analyz
 const peas = { id: 'peas', name: 'Canned chickpeas', quantity: '1 can', category: 'Protein', useSoon: true };
 const lemon = { id: 'lemon', name: 'Lemon', quantity: '1', category: 'Fruit', useSoon: false };
 const original = { id: 'original', isSample: false, title: 'Lemon chickpeas', description: 'A quick warm bowl.', minutes: 10, servings: 2, ingredients: [{ pantryID: 'peas', name: peas.name, quantity: '1 can' }, { pantryID: 'lemon', name: 'Lemon', quantity: '1' }], steps: ['Drain the chickpeas.', 'Warm with lemon juice.'], why: 'Uses the pantry.' };
-const input = { items: [peas, lemon], minutes: 15, servings: 2, style: 'Vegetarian', allowShopping: false, original, adjustment: 'I am out of lemon. Use a microwave.', excludedIDs: ['lemon'] };
-const revised = { ...original, title: 'Microwave chickpeas', ingredients: [original.ingredients[0]], steps: ['Drain and rinse the chickpeas into a microwave-safe bowl.', 'Add water, cover loosely and heat in short intervals, stirring until hot.'] };
+const input = { items: [peas, lemon], minutes: 15, servings: 2, style: 'Vegetarian', allowShopping: false, original, adjustment: 'I am out of lemon. Use a microwave.', excludedIDs: ['lemon'], equipment: ['stovetop', 'microwave'] };
+const revised = { ...original, requiredEquipment: ['microwave'], title: 'Microwave chickpeas', ingredients: [original.ingredients[0]], steps: ['Drain and rinse the chickpeas into a microwave-safe bowl.', 'Add water, cover loosely and heat in short intervals, stirring until hot.'] };
 const output = { recipes: [revised], adjustmentSummary: 'Removed lemon and replaced the stovetop method with microwave heating.' };
 
 test('adjustments use current pantry, remove exclusions, and strip historical persistence fields', () => {

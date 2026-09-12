@@ -38,7 +38,10 @@
       "Fold in the spinach and cook for 1\u20132 minutes until wilted. Turn off the heat, squeeze over half the lemon, and divide between two bowls."
     ],
     "why": "Gives your use-soon spinach and tomatoes the starring roles, with canned chickpeas for a quick meal.",
-    "isSample": true
+    "isSample": true,
+    "requiredEquipment": [
+      "stovetop"
+    ]
   },
   {
     "title": "A very green rice bowl",
@@ -84,7 +87,10 @@
       "Add the spinach and stir for 1\u20132 minutes until wilted. Divide the cooked rice between bowls, top with the chickpeas and greens, then squeeze over lemon."
     ],
     "why": "Uses the spinach you marked to use soon, with staples you already have. Check the rice package for its cooking time.",
-    "isSample": true
+    "isSample": true,
+    "requiredEquipment": [
+      "stovetop"
+    ]
   },
   {
     "title": "Tomato & chickpea salad",
@@ -125,6 +131,7 @@
       "Toss the dressing through the salad and divide between two bowls. Serve straight away."
     ],
     "why": "A no-cook way to use your spinach and tomatoes. Canned chickpeas are ready to eat after draining and rinsing.",
-    "isSample": true
+    "isSample": true,
+    "requiredEquipment": []
   }
 ]

@@ -9,6 +9,7 @@ struct RecipeAdjustmentView: View {
     @State private var preferences: CookingPreferences
     @State private var excludedIDs: Set<String> = []
     @State private var proposal: Recipe?
+    @State private var submittedEquipment: [String] = []
     @State private var submittedPantry: [PantryItem] = []
     @State private var busy = false
     @State private var error: String?
@@ -67,6 +68,7 @@ struct RecipeAdjustmentView: View {
                 Toggle("A few extras are okay", isOn: $preferences.allowShopping)
                 Text(preferences.allowShopping ? "Up to three missing ingredients. Items you leave out stay excluded." : "Your current pantry plus water. No assumed oil or seasonings.").font(.caption).foregroundStyle(Palette.muted)
             }.font(.subheadline).savorCard().disabled(busy)
+            EquipmentProfileCard().disabled(busy)
             if !store.pantry.isEmpty {
                 DisclosureGroup("Leave out ingredients (\(excludedIDs.count))") {
                     VStack(alignment: .leading, spacing: 14) {
@@ -78,7 +80,7 @@ struct RecipeAdjustmentView: View {
                 }.font(.subheadline).savorCard().disabled(busy)
             }
             Text("Your current pantry, recipe, and request go to Google Gemini. Free-tier inputs may help improve Google’s products. Keep personal information out of your request.").font(.caption).foregroundStyle(Palette.muted)
-            ActionButton(title: busy ? "Reworking your recipe…" : "Adjust recipe", symbol: "sparkles", disabled: busy || request.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.pantry.isEmpty) { generate() }.accessibilityIdentifier("submitAdjustment")
+            ActionButton(title: busy ? "Reworking your recipe…" : "Adjust recipe", symbol: "sparkles", disabled: busy || request.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.pantry.isEmpty || store.equipment == nil) { generate() }.accessibilityIdentifier("submitAdjustment")
             if busy { HStack { ProgressView(); Text("Your original stays as it is.").font(.caption) }; Button("Cancel request") { cancel() }.accessibilityIdentifier("cancelAdjustment") }
         }
     }
@@ -91,6 +93,7 @@ struct RecipeAdjustmentView: View {
             Text(recipe.title).font(.system(size: 30, design: .serif)).accessibilityIdentifier("revisionTitle")
             Text("\(recipe.minutes) MIN · SERVES \(recipe.servings)").font(.caption.monospaced()).foregroundStyle(Palette.muted)
             Text(recipe.description).font(.subheadline)
+            RecipeEquipmentView(recipe: recipe)
             Text("The ingredients").font(.system(size: 25, design: .serif))
             ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { _, item in
                 HStack { VStack(alignment: .leading) { Text(item.name); Text(item.missing ? "Pick up" : item.pantryID == "water" ? "Kitchen tap" : "From your pantry").font(.caption).foregroundStyle(item.missing ? Palette.orange : Palette.muted) }; Spacer(); Text(item.quantity).multilineTextAlignment(.trailing) }.font(.subheadline)
@@ -101,7 +104,7 @@ struct RecipeAdjustmentView: View {
             }
             Text("Check that this addresses your request, including equipment, ingredients, and dietary needs. Your original and its progress will stay in Recipe box. This version starts a fresh checklist.").font(.caption).foregroundStyle(Palette.muted)
             ActionButton(title: "Use this version", symbol: "checkmark") {
-                guard store.pantry == submittedPantry else { proposal = nil; error = "Your pantry changed. Adjust the recipe again with your current ingredients."; return }
+                guard store.pantry == submittedPantry && store.equipment == submittedEquipment else { proposal = nil; error = "Your pantry or equipment changed. Adjust the recipe again with your current ingredients."; return }
                 if onAccept(recipe) { dismiss() } else { error = store.error ?? "The revised recipe couldn’t be saved." }
             }.accessibilityIdentifier("acceptAdjustment")
             Button("Edit my request") { proposal = nil }.font(.subheadline).accessibilityIdentifier("editAdjustment")
@@ -113,20 +116,21 @@ struct RecipeAdjustmentView: View {
     }
     private func generate() {
         guard !original.isSample, !store.sampleMode else { error = "Sample recipes stay offline. Choose an AI recipe in your own pantry."; return }
+        guard let equipment = store.equipment else { error = "Set up your kitchen equipment first."; return }
         editingRequest = false
         let pantry = store.pantry
         let snapshotPreferences = preferences
         let snapshotRequest = request.trimmingCharacters(in: .whitespacesAndNewlines)
         let excluded = excludedIDs
-        submittedPantry = pantry; busy = true
+        submittedPantry = pantry; submittedEquipment = equipment; busy = true
         let requestID = UUID(); activeRequest = requestID
         task = Task { @MainActor in
             defer { if activeRequest == requestID { busy = false } }
             do {
-                let result = try await APIService().adjust(recipe: original, items: pantry, preferences: snapshotPreferences, request: snapshotRequest, excludedIDs: excluded)
+                let result = try await APIService().adjust(recipe: original, items: pantry, preferences: snapshotPreferences, request: snapshotRequest, excludedIDs: excluded, equipment: equipment)
                 try Task.checkCancellation()
                 guard activeRequest == requestID else { return }
-                guard store.pantry == pantry else { error = "Your pantry changed. Try again with your current ingredients."; return }
+                guard store.pantry == pantry && store.equipment == equipment else { error = "Your pantry or equipment changed. Try again with your current ingredients."; return }
                 proposal = result
             } catch is CancellationError {
             } catch { if activeRequest == requestID { self.error = error.localizedDescription } }

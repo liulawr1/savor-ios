@@ -1,5 +1,12 @@
 import Foundation
 
+enum KitchenEquipment {
+    static let all = ["microwave", "stovetop", "oven", "kettle"]
+    static func label(_ value: String) -> String { value.prefix(1).uppercased() + value.dropFirst() }
+    static func summary(_ values: [String]) -> String { values.isEmpty ? "No heating equipment" : values.map(label).joined(separator: ", ") }
+}
+
+
 struct PantryItem: Identifiable, Codable, Equatable {
     var id = UUID().uuidString
     var name: String
@@ -48,12 +55,13 @@ struct Recipe: Codable, Identifiable, Equatable {
     var preferences: CookingPreferences?
     var adjustmentSummary: String?
     var originalRecipeID: String?
+    var requiredEquipment: [String]?
     var adjustmentPreferences: CookingPreferences {
         preferences ?? CookingPreferences(minutes: [15, 30, 45].first { $0 >= minutes } ?? 45, servings: servings, style: "Anything", allowShopping: !missing.isEmpty)
     }
     var missing: [RecipeIngredient] { ingredients.filter(\.missing) }
     var progress: Double { steps.isEmpty ? 0 : Double(completedSteps.count) / Double(steps.count) }
-    enum CodingKeys: String, CodingKey { case id, title, description, minutes, servings, ingredients, steps, why, isSample, savedAt, completedSteps, cookedAt, preferences, adjustmentSummary, originalRecipeID }
+    enum CodingKeys: String, CodingKey { case id, title, description, minutes, servings, ingredients, steps, why, isSample, savedAt, completedSteps, cookedAt, preferences, adjustmentSummary, originalRecipeID, requiredEquipment }
     init(title: String, description: String, minutes: Int, servings: Int, ingredients: [RecipeIngredient], steps: [String], why: String, isSample: Bool = false) {
         self.title = title; self.description = description; self.minutes = minutes; self.servings = servings
         self.ingredients = ingredients; self.steps = steps; self.why = why; self.isSample = isSample
@@ -70,8 +78,9 @@ struct Recipe: Codable, Identifiable, Equatable {
         preferences = try c.decodeIfPresent(CookingPreferences.self, forKey: .preferences)
         adjustmentSummary = try c.decodeIfPresent(String.self, forKey: .adjustmentSummary)
         originalRecipeID = try c.decodeIfPresent(String.self, forKey: .originalRecipeID)
+        requiredEquipment = try c.decodeIfPresent([String].self, forKey: .requiredEquipment)
     }
-    var shareText: String { "\(title)\n\(minutes) min · Serves \(servings)\n\n" + ingredients.map { "\($0.quantity) \($0.name)" }.joined(separator: "\n") + "\n\n" + steps.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n\n") + "\n\nMade with Savor · \(isSample ? "Sample recipe" : "AI recipe—review before cooking")" }
+    var shareText: String { "\(title)\n\(minutes) min · Serves \(servings)\nEquipment: \(requiredEquipment.map { KitchenEquipment.summary($0) } ?? "Not recorded—check steps")\n\n" + ingredients.map { "\($0.quantity) \($0.name)" }.joined(separator: "\n") + "\n\n" + steps.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n\n") + "\n\nMade with Savor · \(isSample ? "Sample recipe" : "AI recipe—review before cooking")" }
 }
 struct ScanResult: Decodable {
     struct Item: Decodable { let name: String; let quantity: String; let category: String }

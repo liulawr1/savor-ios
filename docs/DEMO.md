@@ -16,3 +16,7 @@ The offline sample kitchen is a rehearsal tool. Reset it in Settings if you remo
 ## Optional adjustment moment
 
 After opening a live suggestion, tap **Make this work** and enter “I only have a microwave and I’m out of lemon.” Keep compatible cooking limits (for example Vegetarian or Anything), tap **Adjust recipe**, and show **What changed** plus the revised steps. Tap **Use this version**, then show both recipes in Recipe box. This can replace part of the cooking-checklist segment to keep the video near two minutes. It is a live AI call; sample kitchen recipes cannot be revised.
+
+## Optional dorm-kitchen moment
+
+Before generating a meal, open **Your equipment** on Cook and save **Microwave** only. Show the returned recipe’s **Equipment needed**. You can then change the profile to no heating equipment and use **Make this work** to request cold preparation. Saved recipes remain available and flag equipment outside your current profile. Profile changes themselves do not call Gemini.

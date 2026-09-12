@@ -1,7 +1,7 @@
 import SwiftUI
 
 @MainActor final class PantryStore: ObservableObject {
-    struct State: Codable { var pantry: [PantryItem] = []; var saved: [Recipe] = []; var sampleMode = false; var started = false }
+    struct State: Codable { var pantry: [PantryItem] = []; var saved: [Recipe] = []; var sampleMode = false; var started = false; var equipment: [String]? }
     @Published private(set) var state = State()
     @Published var error: String?
     @Published var recipes: [Recipe] = []
@@ -10,11 +10,17 @@ import SwiftUI
     var pantry: [PantryItem] { state.pantry }
     var saved: [Recipe] { state.saved.sorted { ($0.savedAt ?? .distantPast) > ($1.savedAt ?? .distantPast) } }
     var useSoon: [PantryItem] { pantry.filter(\.useSoon) }
+    var equipment: [String]? { state.equipment }
+    @discardableResult func setEquipment(_ values: Set<String>) -> Bool {
+        var next = state
+        next.equipment = KitchenEquipment.all.filter { values.contains($0) }
+        return commit(next)
+    }
     var sampleMode: Bool { state.sampleMode }
     var mealsCooked: Int { state.saved.filter { $0.cookedAt != nil && !$0.isSample }.count }
-    init() {
+    init(storageURL: URL? = nil) {
         let testing = ProcessInfo.processInfo.arguments.contains("--ui-testing")
-        url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent(testing ? "SavorUITests/state.json" : "Savor/state.json")
+        url = storageURL ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent(testing ? "SavorUITests/state.json" : "Savor/state.json")
         if ProcessInfo.processInfo.arguments.contains("--reset") && testing { try? FileManager.default.removeItem(at: url) }
         if FileManager.default.fileExists(atPath: url.path) {
             do { state = try JSONDecoder().decode(State.self, from: Data(contentsOf: url)) }
@@ -31,11 +37,11 @@ import SwiftUI
     }
     func startEmpty() { var next = state; next.started = true; next.sampleMode = false; if commit(next) { recipes = [] } }
     func loadSample() {
-        var next = State(); next.started = true; next.sampleMode = true
+        var next = State(); next.equipment = state.equipment; next.started = true; next.sampleMode = true
         next.pantry = [PantryItem(id: "spinach", name: "Spinach", quantity: "1 bag", category: "Vegetables", useSoon: true), PantryItem(id: "tomatoes", name: "Cherry tomatoes", quantity: "1 cup", category: "Vegetables", useSoon: true), PantryItem(id: "chickpeas", name: "Canned chickpeas", quantity: "1 can", category: "Protein"), PantryItem(id: "rice", name: "Dry rice", quantity: "1 cup", category: "Grains"), PantryItem(id: "lemon", name: "Lemon", quantity: "1", category: "Fruit"), PantryItem(id: "oil", name: "Olive oil", quantity: "3 tbsp", category: "Other")]
         if commit(next) { recipes = [] }
     }
-    func clearSample() { if commit(State(pantry: [], saved: [], sampleMode: false, started: true)) { recipes = [] } }
+    func clearSample() { if commit(State(pantry: [], saved: [], sampleMode: false, started: true, equipment: state.equipment)) { recipes = [] } }
     @discardableResult func add(_ items: [PantryItem]) -> Bool {
         guard state.pantry.count + items.count <= 30 else { error = "Your pantry holds up to 30 ingredients. Remove something you’ve used before adding more."; return false }
         var next = state; next.pantry.append(contentsOf: items); next.started = true

@@ -44,6 +44,10 @@ final class SavorUITests: XCTestCase {
         let confirm = app.buttons["Clear sample & start fresh"]; XCTAssertTrue(confirm.waitForExistence(timeout: 5)); confirm.tap()
         XCTAssertTrue(app.staticTexts["Room for good things."].waitForExistence(timeout: 5))
     }
+    private func toggleEquipment(_ name: String) {
+        // SwiftUI exposes the whole labeled row as a switch. Tap its trailing control.
+        app.switches["equipment-\(name)"].coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
+    }
     private func openLiveFixtureRecipe() {
         app.launchEnvironment["SAVOR_TEST_SERVER_URL"] = "http://127.0.0.1:8790"
         app.launchEnvironment["SAVOR_TEST_CLIENT_TOKEN"] = "savor-ui-fixture-token-32-characters"
@@ -54,9 +58,16 @@ final class SavorUITests: XCTestCase {
         let amount = app.textFields["ingredientQuantity"].firstMatch; amount.tap(); amount.typeText("1 can")
         app.buttons["confirmIngredients"].tap()
         app.tabBars.buttons["Cook"].tap()
+        let equipment = app.buttons["editEquipment"]; reveal(equipment); equipment.tap()
+        toggleEquipment("microwave"); toggleEquipment("stovetop")
+        XCTAssertEqual(app.switches["equipment-microwave"].value as? String, "1")
+        XCTAssertEqual(app.switches["equipment-stovetop"].value as? String, "1")
+        app.buttons["saveEquipment"].tap()
         let generate = app.buttons["generateMeals"]; reveal(generate); generate.tap()
         let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "recipeCard")).firstMatch
-        XCTAssertTrue(card.waitForExistence(timeout: 8)); reveal(card); card.tap()
+        let found = card.waitForExistence(timeout: 8)
+        if !found { let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = "Missing meal"; shot.lifetime = .keepAlways; add(shot) }
+        XCTAssertTrue(found, app.debugDescription); reveal(card); card.tap()
     }
     private func openAdjustment() {
         let adjust = app.buttons["makeThisWork"]; reveal(adjust); adjust.tap()
@@ -122,6 +133,57 @@ final class SavorUITests: XCTestCase {
         app.tabBars.buttons["Recipe box"].tap()
         XCTAssertTrue(app.staticTexts["Warm chickpea bowl"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.staticTexts["Microwave chickpea bowl"].exists)
+    }
+
+    func testEquipmentProfilePersistsAndFlagsSavedRecipe() throws {
+        openLiveFixtureRecipe(); app.buttons["saveRecipe"].tap()
+        app.terminate(); app.launchArguments = ["--ui-testing"]; app.launch()
+        app.buttons["settings"].tap()
+        let equipment = app.buttons["settingsEquipment"]; reveal(equipment); equipment.tap()
+        XCTAssertEqual(app.switches["equipment-microwave"].value as? String, "1")
+        XCTAssertEqual(app.switches["equipment-stovetop"].value as? String, "1")
+        toggleEquipment("stovetop")
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = "Microwave kitchen profile"; shot.lifetime = .keepAlways; add(shot)
+        app.buttons["saveEquipment"].tap()
+        app.terminate(); app.launch()
+        app.buttons["settings"].tap(); reveal(equipment); equipment.tap()
+        XCTAssertEqual(app.switches["equipment-microwave"].value as? String, "1")
+        XCTAssertEqual(app.switches["equipment-stovetop"].value as? String, "0")
+        app.buttons["Cancel"].tap(); app.buttons["Done"].tap()
+        app.tabBars.buttons["Recipe box"].tap()
+        let original = app.buttons.containing(.staticText, identifier: "Warm chickpea bowl").firstMatch; reveal(original); original.tap()
+        let mismatch = app.staticTexts["equipmentMismatch"]; reveal(mismatch); XCTAssertTrue(mismatch.exists)
+        for _ in 0..<6 { if app.buttons["makeThisWork"].isHittable { break }; app.swipeDown() }
+        openAdjustment(); app.buttons["microwaveAdjustment"].tap()
+        let submit = app.buttons["submitAdjustment"]; reveal(submit); submit.tap()
+        XCTAssertTrue(app.staticTexts["adjustmentSummary"].waitForExistence(timeout: 8))
+        let required = app.staticTexts.matching(identifier: "requiredEquipment").matching(NSPredicate(format: "label == %@", "Microwave")).firstMatch; reveal(required); XCTAssertEqual(required.label, "Microwave")
+        let accept = app.buttons["acceptAdjustment"]; reveal(accept); accept.tap()
+        app.terminate(); app.launch()
+        app.buttons["settings"].tap(); reveal(equipment); equipment.tap()
+        toggleEquipment("microwave"); app.buttons["saveEquipment"].tap()
+        app.terminate(); app.launch()
+        app.buttons["settings"].tap(); reveal(equipment); equipment.tap()
+        for item in ["microwave", "stovetop", "oven", "kettle"] { XCTAssertEqual(app.switches["equipment-\(item)"].value as? String, "0") }
+        app.buttons["Cancel"].tap(); app.buttons["Done"].tap()
+        app.tabBars.buttons["Pantry"].tap()
+        let ingredient = app.buttons["ingredient-Canned chickpeas"]; reveal(ingredient); XCTAssertTrue(ingredient.exists)
+    }
+    func testEquipmentSetupIsExplicitAndSampleResetPreservesIt() throws {
+        app.launch(); app.tabBars.buttons["Cook"].tap()
+        app.buttons["editEquipment"].tap()
+        for item in ["microwave", "stovetop", "oven", "kettle"] { XCTAssertEqual(app.switches["equipment-\(item)"].value as? String, "0") }
+        toggleEquipment("kettle"); app.buttons["saveEquipment"].tap()
+        app.tabBars.buttons["Pantry"].tap(); app.buttons["loadSample"].tap()
+        app.buttons["settings"].tap(); app.buttons["Reset sample kitchen"].tap()
+        let resetButtons = app.buttons.matching(identifier: "Reset sample kitchen")
+        try XCTUnwrap(resetButtons.allElementsBoundByIndex.first { $0.isHittable }).tap()
+        app.buttons["settings"].tap(); app.buttons["Start my own pantry"].tap()
+        app.buttons["Clear sample & start fresh"].tap()
+        app.terminate(); app.launchArguments = ["--ui-testing"]; app.launch()
+        app.buttons["settings"].tap(); let equipment = app.buttons["settingsEquipment"]; reveal(equipment); equipment.tap()
+        XCTAssertEqual(app.switches["equipment-kettle"].value as? String, "1")
+        XCTAssertEqual(app.switches["equipment-microwave"].value as? String, "0")
     }
 
 }

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateMeals, validateScan, validateMealOutput, validateScanOutput, generate, mealRequest, scanRequest } from '../ai.mjs';
-export const input = { items: [{ id: 'peas', name: 'Canned chickpeas', quantity: '1 can', category: 'Protein', useSoon: true }], minutes: 15, servings: 2, style: 'Anything', allowShopping: false };
-const recipe = { title: 'Warm chickpeas', description: 'A simple pantry bowl.', minutes: 10, servings: 2, ingredients: [{ pantryID: 'peas', name: 'Canned chickpeas', quantity: '1 can' }], steps: ['Drain and rinse the chickpeas.', 'Warm gently with a splash of water and serve.'], why: 'Uses your chickpeas.' };
+export const input = { items: [{ id: 'peas', name: 'Canned chickpeas', quantity: '1 can', category: 'Protein', useSoon: true }], minutes: 15, servings: 2, style: 'Anything', allowShopping: false, equipment: ['stovetop', 'microwave'] };
+const recipe = { requiredEquipment: ['stovetop'], title: 'Warm chickpeas', description: 'A simple pantry bowl.', minutes: 10, servings: 2, ingredients: [{ pantryID: 'peas', name: 'Canned chickpeas', quantity: '1 can' }], steps: ['Drain and rinse the chickpeas.', 'Warm gently with a splash of water and serve.'], why: 'Uses your chickpeas.' };
 const clone = v => structuredClone(v);
 test('input bounds reject unbounded data, invalid categories, duplicate and reserved IDs', () => {
  assert.deepEqual(validateMeals(input), input);

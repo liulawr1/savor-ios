@@ -4,7 +4,7 @@ import { once } from 'node:events';
 import { makeServer } from '../app.mjs';
 
 const token = 'test-only-pairing-token-32-characters';
-const input = { items: [{ id: 'peas', name: 'Chickpeas', quantity: '1 can', category: 'Protein', useSoon: true }], minutes: 15, servings: 2, style: 'Anything', allowShopping: false };
+const input = { items: [{ id: 'peas', name: 'Chickpeas', quantity: '1 can', category: 'Protein', useSoon: true }], minutes: 15, servings: 2, style: 'Anything', allowShopping: false, equipment: ['stovetop', 'microwave'] };
 const assessment = { recipes: [] };
 
 async function fixture(t, options = {}) {

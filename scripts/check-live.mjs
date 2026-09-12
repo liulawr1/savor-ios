@@ -6,7 +6,7 @@ const input = validateMeals({items:[
  {id:'tomatoes',name:'Cherry tomatoes',quantity:'1 cup',category:'Vegetables',useSoon:true},
  {id:'oil',name:'Olive oil',quantity:'1 tablespoon',category:'Other',useSoon:false},
  {id:'lemon',name:'Lemon',quantity:'1',category:'Fruit',useSoon:false}
-],minutes:15,servings:2,style:'Vegetarian',allowShopping:false});
+],minutes:15,servings:2,style:'Vegetarian',allowShopping:false,equipment:['stovetop']});
 try {
  const result = await analyze('meals', input, {apiKey:process.env.GEMINI_API_KEY,model:process.env.GEMINI_MODEL || DEFAULT_MODEL,signal:AbortSignal.timeout(45000)});
  writeFileSync(new URL('../docs/live-validation.json',import.meta.url), JSON.stringify({checkedAt:new Date().toISOString(),model:process.env.GEMINI_MODEL || DEFAULT_MODEL,input,result},null,2)+'\n');

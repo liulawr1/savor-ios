@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { makeServer } from '../server/app.mjs';
 import { DEFAULT_MODEL } from '../server/ai.mjs';
 const previous = JSON.parse(await readFile(new URL('../docs/live-validation.json', import.meta.url), 'utf8'));
-const request = { ...previous.input, original: previous.result.recipes[0], adjustment: "I only have a microwave and I am out of lemon. Adapt this recipe without lemon, using microwave-safe equipment.", excludedIDs: [] };
+const request = { ...previous.input, original: previous.result.recipes[0], adjustment: "I only have a microwave and I am out of lemon. Adapt this recipe without lemon, using microwave-safe equipment.", excludedIDs: [], equipment: ['microwave'] };
 const token = randomBytes(32).toString('hex');
 const model = process.env.GEMINI_MODEL || DEFAULT_MODEL;
 const server = makeServer({ apiKey: process.env.GEMINI_API_KEY, clientToken: token, model });

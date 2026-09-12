@@ -50,12 +50,12 @@ struct APIService {
         let body = try JSONSerialization.data(withJSONObject: ["imageBase64": photo.base64EncodedString()])
         return try JSONDecoder().decode(ScanResult.self, from: await send(path: "v1/scan", body: body))
     }
-    func meals(items: [PantryItem], minutes: Int, servings: Int, style: String, allowShopping: Bool) async throws -> [Recipe] {
-        let input: [String: Any] = ["items": items.map { ["id": $0.id, "name": $0.name, "quantity": $0.quantity, "category": $0.category, "useSoon": $0.useSoon] as [String: Any] }, "minutes": minutes, "servings": servings, "style": style, "allowShopping": allowShopping]
+    func meals(items: [PantryItem], minutes: Int, servings: Int, style: String, allowShopping: Bool, equipment: [String]) async throws -> [Recipe] {
+        let input: [String: Any] = ["items": items.map { ["id": $0.id, "name": $0.name, "quantity": $0.quantity, "category": $0.category, "useSoon": $0.useSoon] as [String: Any] }, "minutes": minutes, "servings": servings, "style": style, "allowShopping": allowShopping, "equipment": equipment]
         struct Result: Decodable { let recipes: [Recipe] }
         return try JSONDecoder().decode(Result.self, from: await send(path: "v1/meals", body: JSONSerialization.data(withJSONObject: input))).recipes
     }
-    func adjust(recipe: Recipe, items: [PantryItem], preferences: CookingPreferences, request: String, excludedIDs: Set<String>) async throws -> Recipe {
+    func adjust(recipe: Recipe, items: [PantryItem], preferences: CookingPreferences, request: String, excludedIDs: Set<String>, equipment: [String]) async throws -> Recipe {
         struct Input: Encodable {
             let original: Recipe
             let items: [PantryItem]
@@ -65,9 +65,10 @@ struct APIService {
             let allowShopping: Bool
             let adjustment: String
             let excludedIDs: [String]
+            let equipment: [String]
         }
         struct Result: Decodable { let recipe: Recipe }
-        let input = Input(original: recipe, items: items, minutes: preferences.minutes, servings: preferences.servings, style: preferences.style, allowShopping: preferences.allowShopping, adjustment: request, excludedIDs: excludedIDs.sorted())
+        let input = Input(original: recipe, items: items, minutes: preferences.minutes, servings: preferences.servings, style: preferences.style, allowShopping: preferences.allowShopping, adjustment: request, excludedIDs: excludedIDs.sorted(), equipment: equipment)
         return try JSONDecoder().decode(Result.self, from: await send(path: "v1/adjust", body: JSONEncoder().encode(input))).recipe
     }
 

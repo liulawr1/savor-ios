@@ -31,6 +31,7 @@ If you change your local server settings, run `npm run setup` and rebuild the ap
 - Pantry-only requests include no presumed oil, salt, or seasonings. Water is allowed.
 - Server-side validation of pantry IDs, serving counts, time limits, output bounds, and the maximum of three missing ingredients per recipe.
 - Saved recipes, sharing, step checklists, persistent progress, and meal completion.
+- **Kitchen equipment profile**: save microwave, stovetop, oven, and kettle availability; all generated meals and revisions declare required equipment and are checked against the current profile.
 - **Make this work**: adjust a generated recipe for a missing ingredient or different equipment, review the changes and full revised recipe, then save both versions with separate progress.
 - Explicit selection of ingredients used up; no guessed quantity deductions.
 - A labeled offline sample kitchen with three prepared recipes. Samples are excluded from real meals-made counts.
@@ -38,12 +39,24 @@ If you change your local server settings, run `npm run setup` and rebuild the ap
 
 Recipe suggestions are not guaranteed to be nutritionally balanced, allergen-free, safe, or feasible. Check ingredient labels, freshness, quantities, and cooking instructions. **Use soon** is an intention, not a shelf-life calculation. No expiry prediction, environmental-savings estimate, or nutrition estimate is made.
 
+## Set up your kitchen equipment
+
+Go to **Pantry → Settings (sliders icon) → Kitchen equipment → Edit equipment**, or tap **Your equipment** on Cook or the adjustment screen. Select microwave, stovetop, oven, and/or kettle, then tap **Save**. You only need to do this once unless your kitchen changes.
+
+The profile starts unset, including when upgrading an existing pantry; no appliances are assumed. Save with all switches off for **No heating equipment**, which requests cold-preparation meals. The app assumes basic utensils and appropriate cookware; kettle means an electric kettle for boiling water only.
+
+Every meal-generation and recipe-adjustment request includes the current profile. Gemini must return a `requiredEquipment` list for every recipe; the server rejects unknown, duplicate, unavailable, or style-incompatible entries (for example oven with No oven selected). Recipe details and revision previews show **Equipment needed**. Natural-language steps still need review: checking the declared list cannot prove that Gemini listed every appliance correctly.
+
+Changing the profile preserves pantry items, saved recipes, and cooking progress. Existing suggestions remain available and show a warning if their listed equipment is outside the new profile. Older recipes without equipment data are labeled as not recorded; they are never assumed to need no equipment. Use **Make this work** to request a revision against your current kitchen. Sample recipes show their equipment for reference and remain offline; resetting or leaving the sample preserves your personal equipment profile. Photo scanning does not involve cooking equipment and is unchanged.
+
+Restart the server and rebuild the app after this update. Older clients that omit equipment receive a setup error rather than unrestricted recipes.
+
 ## Adjust a recipe
 
 Open a live AI recipe from **Cook** or **Recipe box**, then tap **Make this work** below its explanation.
 
 1. Describe the change, such as “Can I use a microwave?” or “I’m out of lemon.” There is also a microwave shortcut.
-2. Check the time limit, servings, cooking style, and extras setting. New recipes remember their generation preferences. Older recipes still open normally and ask you to review fallback preferences.
+2. Check your equipment profile, time limit, servings, cooking style, and extras setting. New recipes remember their generation preferences. Older recipes still open normally and ask you to review fallback preferences.
 3. Optionally expand **Leave out ingredients** to explicitly exclude pantry items from this revision. This does not edit your pantry.
 4. Tap **Adjust recipe**. This makes one Gemini request through `/v1/adjust`, sharing the current pantry, original recipe, preferences, and change request.
 5. Review **What changed**, the ingredients, and the new steps. Choose **Use this version**, **Edit my request**, or **Keep original**.
@@ -119,7 +132,20 @@ To opt into one live adjustment test (microwave cooking without lemon), run:
 node --env-file=server/.env scripts/check-adjustment-live.mjs
 ```
 
-It uses the canned ingredient list from the earlier live validation, exercises the actual HTTP adjustment route, and records `docs/adjustment-live-validation.json`. It does not read or modify your pantry.
+It uses a microwave-only profile and the canned ingredient list from the earlier live validation, exercises the actual HTTP adjustment route, and records `docs/adjustment-live-validation.json`. It does not read or modify your pantry.
+
+Two opt-in live equipment checks (microwave-only generation, then a revision with no heating equipment):
+
+```sh
+node --env-file=server/.env scripts/check-equipment-live.mjs
+```
+
+To verify migration from the older on-disk pantry format using temporary data and the real Swift store:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swiftc -parse-as-library Savor/Models.swift Savor/PantryStore.swift scripts/check-persistence.swift -o /tmp/savor-check-persistence
+/tmp/savor-check-persistence
+```
 
 To create a private GitHub repository after reviewing the local commit:
 

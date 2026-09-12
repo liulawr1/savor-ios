@@ -1,0 +1,257 @@
+{
+  "checkedAt": "2026-09-12T22:23:19.132Z",
+  "model": "gemini-3.6-flash",
+  "mealInput": {
+    "items": [
+      {
+        "id": "chickpeas",
+        "name": "Canned chickpeas",
+        "quantity": "1 can",
+        "category": "Protein",
+        "useSoon": false
+      },
+      {
+        "id": "spinach",
+        "name": "Spinach",
+        "quantity": "2 handfuls",
+        "category": "Vegetables",
+        "useSoon": true
+      },
+      {
+        "id": "tomatoes",
+        "name": "Cherry tomatoes",
+        "quantity": "1 cup",
+        "category": "Vegetables",
+        "useSoon": true
+      },
+      {
+        "id": "oil",
+        "name": "Olive oil",
+        "quantity": "1 tablespoon",
+        "category": "Other",
+        "useSoon": false
+      },
+      {
+        "id": "lemon",
+        "name": "Lemon",
+        "quantity": "1",
+        "category": "Fruit",
+        "useSoon": false
+      }
+    ],
+    "minutes": 15,
+    "servings": 2,
+    "style": "Vegetarian",
+    "allowShopping": false,
+    "equipment": [
+      "microwave"
+    ]
+  },
+  "meals": {
+    "recipes": [
+      {
+        "id": "d90e60c7-e692-4006-8823-27cf0f81a6b2",
+        "title": "Warm Microwave Chickpea and Spinach Salad",
+        "description": "A quick warm salad featuring tender chickpeas, juicy cherry tomatoes, and wilted spinach tossed in olive oil and fresh lemon juice.",
+        "minutes": 10,
+        "servings": 2,
+        "ingredients": [
+          {
+            "pantryID": "chickpeas",
+            "name": "Canned chickpeas",
+            "quantity": "1 can"
+          },
+          {
+            "pantryID": "spinach",
+            "name": "Spinach",
+            "quantity": "2 handfuls"
+          },
+          {
+            "pantryID": "tomatoes",
+            "name": "Cherry tomatoes",
+            "quantity": "1 cup"
+          },
+          {
+            "pantryID": "oil",
+            "name": "Olive oil",
+            "quantity": "1 tablespoon"
+          },
+          {
+            "pantryID": "lemon",
+            "name": "Lemon",
+            "quantity": "1"
+          }
+        ],
+        "steps": [
+          "Rinse and drain the canned chickpeas. Halve the cherry tomatoes and slice the lemon in half.",
+          "In a microwave-safe bowl, combine the drained chickpeas, halved cherry tomatoes, and olive oil.",
+          "Cover the microwave-safe bowl with a paper towel and microwave on high for 2 minutes until hot.",
+          "Carefully remove the bowl from the microwave and stir in the fresh spinach, allowing the residual heat to wilt the leaves.",
+          "Squeeze the fresh lemon juice over the warm mix, toss well to coat, and divide between two serving bowls."
+        ],
+        "requiredEquipment": [
+          "microwave"
+        ],
+        "why": "This recipe makes great use of your fresh spinach and cherry tomatoes, which are marked to use soon, combining them into a simple microwave meal within your 15-minute timeframe.",
+        "isSample": false,
+        "preferences": {
+          "minutes": 15,
+          "servings": 2,
+          "style": "Vegetarian",
+          "allowShopping": false
+        }
+      }
+    ]
+  },
+  "adjustmentInput": {
+    "items": [
+      {
+        "id": "chickpeas",
+        "name": "Canned chickpeas",
+        "quantity": "1 can",
+        "category": "Protein",
+        "useSoon": false
+      },
+      {
+        "id": "spinach",
+        "name": "Spinach",
+        "quantity": "2 handfuls",
+        "category": "Vegetables",
+        "useSoon": true
+      },
+      {
+        "id": "tomatoes",
+        "name": "Cherry tomatoes",
+        "quantity": "1 cup",
+        "category": "Vegetables",
+        "useSoon": true
+      },
+      {
+        "id": "oil",
+        "name": "Olive oil",
+        "quantity": "1 tablespoon",
+        "category": "Other",
+        "useSoon": false
+      },
+      {
+        "id": "lemon",
+        "name": "Lemon",
+        "quantity": "1",
+        "category": "Fruit",
+        "useSoon": false
+      }
+    ],
+    "minutes": 15,
+    "servings": 2,
+    "style": "Vegetarian",
+    "allowShopping": false,
+    "equipment": [],
+    "original": {
+      "id": "d90e60c7-e692-4006-8823-27cf0f81a6b2",
+      "title": "Warm Microwave Chickpea and Spinach Salad",
+      "description": "A quick warm salad featuring tender chickpeas, juicy cherry tomatoes, and wilted spinach tossed in olive oil and fresh lemon juice.",
+      "minutes": 10,
+      "servings": 2,
+      "ingredients": [
+        {
+          "pantryID": "chickpeas",
+          "name": "Canned chickpeas",
+          "quantity": "1 can"
+        },
+        {
+          "pantryID": "spinach",
+          "name": "Spinach",
+          "quantity": "2 handfuls"
+        },
+        {
+          "pantryID": "tomatoes",
+          "name": "Cherry tomatoes",
+          "quantity": "1 cup"
+        },
+        {
+          "pantryID": "oil",
+          "name": "Olive oil",
+          "quantity": "1 tablespoon"
+        },
+        {
+          "pantryID": "lemon",
+          "name": "Lemon",
+          "quantity": "1"
+        }
+      ],
+      "steps": [
+        "Rinse and drain the canned chickpeas. Halve the cherry tomatoes and slice the lemon in half.",
+        "In a microwave-safe bowl, combine the drained chickpeas, halved cherry tomatoes, and olive oil.",
+        "Cover the microwave-safe bowl with a paper towel and microwave on high for 2 minutes until hot.",
+        "Carefully remove the bowl from the microwave and stir in the fresh spinach, allowing the residual heat to wilt the leaves.",
+        "Squeeze the fresh lemon juice over the warm mix, toss well to coat, and divide between two serving bowls."
+      ],
+      "requiredEquipment": [
+        "microwave"
+      ],
+      "why": "This recipe makes great use of your fresh spinach and cherry tomatoes, which are marked to use soon, combining them into a simple microwave meal within your 15-minute timeframe.",
+      "isSample": false,
+      "preferences": {
+        "minutes": 15,
+        "servings": 2,
+        "style": "Vegetarian",
+        "allowShopping": false
+      }
+    },
+    "excludedIDs": [],
+    "adjustment": "I no longer have any heating equipment. Adapt this to cold preparation only."
+  },
+  "adjusted": {
+    "recipe": {
+      "id": "d21106f4-0a83-47d3-9859-8f0d23619f39",
+      "title": "Cold Chickpea, Tomato, and Spinach Salad",
+      "description": "A crisp, fresh salad combining tender canned chickpeas, halved cherry tomatoes, and fresh spinach tossed with olive oil and fresh lemon juice.",
+      "minutes": 10,
+      "servings": 2,
+      "ingredients": [
+        {
+          "pantryID": "chickpeas",
+          "name": "Canned chickpeas",
+          "quantity": "1 can"
+        },
+        {
+          "pantryID": "spinach",
+          "name": "Spinach",
+          "quantity": "2 handfuls"
+        },
+        {
+          "pantryID": "tomatoes",
+          "name": "Cherry tomatoes",
+          "quantity": "1 cup"
+        },
+        {
+          "pantryID": "oil",
+          "name": "Olive oil",
+          "quantity": "1 tablespoon"
+        },
+        {
+          "pantryID": "lemon",
+          "name": "Lemon",
+          "quantity": "1"
+        }
+      ],
+      "steps": [
+        "Rinse and drain the canned chickpeas thoroughly. Slice the cherry tomatoes in half and slice the lemon in half.",
+        "In a large serving bowl, combine the drained chickpeas, halved cherry tomatoes, and fresh spinach leaves.",
+        "Drizzle the olive oil over the fresh ingredients and squeeze the juice from the lemon halves directly into the bowl.",
+        "Toss all ingredients together until evenly coated and divide between two plates to serve cold."
+      ],
+      "requiredEquipment": [],
+      "why": "This salad makes great use of your spinach and cherry tomatoes (which are marked to use soon) without requiring any heating appliances.",
+      "isSample": false,
+      "preferences": {
+        "minutes": 15,
+        "servings": 2,
+        "style": "Vegetarian",
+        "allowShopping": false
+      },
+      "adjustmentSummary": "Adapted the recipe for cold preparation by removing the microwave step and equipment. The ingredients are now tossed raw and served chilled.",
+      "originalRecipeID": "d90e60c7-e692-4006-8823-27cf0f81a6b2"
+    }
+  }
+}

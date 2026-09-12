@@ -24,6 +24,7 @@ struct RecipeDetailView: View {
                     ActionButton(title: "Make this work", symbol: "wand.and.stars", disabled: displayed.isSample || store.sampleMode || store.pantry.isEmpty) { adjusting = true }.accessibilityIdentifier("makeThisWork")
                     Text(displayed.isSample || store.sampleMode ? "Sample recipes stay offline. Adjust an AI recipe in your own pantry." : store.pantry.isEmpty ? "Add ingredients to your pantry before adjusting this recipe." : "Different equipment or an ingredient missing? Review a revision while keeping your original.").font(.caption).foregroundStyle(Palette.muted)
                 }
+                RecipeEquipmentView(recipe: displayed)
                 HStack { Text("The ingredients").font(.system(size: 27, design: .serif)); Spacer(); Text("\(displayed.ingredients.count) items").font(.caption).foregroundStyle(Palette.muted) }
                 VStack(spacing: 15) {
                     ForEach(Array(displayed.ingredients.enumerated()), id: \.offset) { _, item in

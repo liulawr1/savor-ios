@@ -17,6 +17,7 @@ struct CookView: View {
                     Eyebrow(text: "From what you have")
                     Text("What’s for\ndinner?").font(.system(size: 46, design: .serif)).tracking(-1.6)
                     Text("A few good ingredients. A fresh idea.").font(.subheadline).foregroundStyle(Palette.muted)
+                    if !store.sampleMode { EquipmentProfileCard().disabled(busy) }
                     if store.pantry.isEmpty { EmptyCard(symbol: "carrot", title: "Start in your pantry.", message: "Add ingredients on the Pantry tab, then come back for meal ideas.") }
                     else {
                         HStack { Pill(text: "\(store.pantry.count) ingredients", symbol: "basket"); if !store.useSoon.isEmpty { Pill(text: "\(store.useSoon.count) to use soon", symbol: "sun.max", orange: true) } }.accessibilityElement(children: .combine)
@@ -35,7 +36,7 @@ struct CookView: View {
                                 Text(shopping ? "Up to three missing ingredients per recipe, clearly listed." : "Only your listed ingredients, plus water. Add oil and seasonings to your pantry if you have them.").font(.caption).foregroundStyle(Palette.muted)
                             }.savorCard().disabled(busy)
                         }
-                        ActionButton(title: busy ? "Finding your next meal…" : (store.sampleMode ? "Explore meal ideas" : "Find my meals"), symbol: "sparkles", disabled: busy) { generate() }.accessibilityIdentifier("generateMeals")
+                        ActionButton(title: busy ? "Finding your next meal…" : (store.sampleMode ? "Explore meal ideas" : "Find my meals"), symbol: "sparkles", disabled: busy || (!store.sampleMode && store.equipment == nil)) { generate() }.accessibilityIdentifier("generateMeals")
                         if busy { HStack { ProgressView().tint(Palette.green); Text("Starting with what you want to use soon.").font(.caption).foregroundStyle(Palette.muted) }; Button("Cancel") { activeRequest = UUID(); task?.cancel(); busy = false } }
                         if !store.sampleMode { Text("Your ingredient list and cooking preferences go to Google Gemini. Free-tier inputs may help improve Google’s products. Review ingredients and instructions before cooking; suggestions aren’t allergy guarantees.").font(.caption).foregroundStyle(Palette.muted).lineSpacing(3) }
                         if !store.recipes.isEmpty {
@@ -53,18 +54,20 @@ struct CookView: View {
     }
     private func generate() {
         if store.sampleMode { store.recipes = store.sampleRecipes(); if store.recipes.isEmpty { error = "The sample ingredients have changed. Reset the sample kitchen in Settings to explore its recipes, or switch to your own pantry for live AI." }; return }
+        guard let equipment = store.equipment else { error = "Set up your kitchen equipment first."; return }
         let pantry = store.pantry
         guard pantry.count <= 30 else { error = "For this demo, keep up to 30 ingredients in your pantry when asking for meals."; return }
         busy = true
         let requestID = UUID(); activeRequest = requestID
         task = Task { @MainActor in
             defer { if activeRequest == requestID { busy = false } }
-            do { let recipes = try await APIService().meals(items: pantry, minutes: minutes, servings: servings, style: style, allowShopping: shopping); try Task.checkCancellation(); guard activeRequest == requestID else { return }; guard store.pantry == pantry else { error = "Your pantry changed. Find meals again with your updated ingredients."; return }; store.recipes = recipes }
+            do { let recipes = try await APIService().meals(items: pantry, minutes: minutes, servings: servings, style: style, allowShopping: shopping, equipment: equipment); try Task.checkCancellation(); guard activeRequest == requestID else { return }; guard store.pantry == pantry && store.equipment == equipment else { error = "Your pantry or equipment changed. Find meals again with your current kitchen."; return }; store.recipes = recipes }
             catch is CancellationError {} catch { self.error = error.localizedDescription }
         }
     }
 }
 struct RecipeCard: View {
+    @EnvironmentObject var store: PantryStore
     let recipe: Recipe
     var index = 0
     var body: some View {
@@ -73,6 +76,10 @@ struct RecipeCard: View {
             HStack { Text("\(recipe.minutes) MIN · SERVES \(recipe.servings)").font(.system(size: 10, weight: .bold, design: .monospaced)).tracking(1.4).foregroundStyle(Palette.muted); Spacer(); Image(systemName: "arrow.up.right") }
             Text(recipe.title).font(.system(size: 26, design: .serif)).multilineTextAlignment(.leading)
             Text(recipe.description).font(.subheadline).foregroundStyle(Palette.muted).lineLimit(3).multilineTextAlignment(.leading)
+            if let required = recipe.requiredEquipment {
+                let unavailable = !recipe.isSample && store.equipment.map { available in required.contains { !available.contains($0) } } == true
+                Pill(text: unavailable ? "Equipment needs adjusting" : KitchenEquipment.summary(required), symbol: "oven", orange: unavailable)
+            }
             Pill(text: recipe.missing.isEmpty ? "From your pantry" : "\(recipe.missing.count) extras to pick up", symbol: recipe.missing.isEmpty ? "checkmark" : "basket", orange: !recipe.missing.isEmpty)
         }.savorCard()
     }
