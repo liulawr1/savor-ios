@@ -50,7 +50,7 @@ struct RecipeDetailView: View {
             }.padding(24)
         }.pageStyle().navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItemGroup(placement: .topBarTrailing) { ShareLink(item: displayed.shareText) { Image(systemName: "square.and.arrow.up") }; Button { store.save(displayed) } label: { Image(systemName: isSaved ? "bookmark.fill" : "bookmark") }.disabled(isSaved).accessibilityLabel(isSaved ? "Recipe saved" : "Save recipe").accessibilityIdentifier("saveRecipe") } }
-        .sheet(isPresented: $finishing) { FinishMealView(recipe: current) }
+        .sheet(isPresented: $finishing) { FinishMealView(recipe: current, items: store.pantry.filter { item in current.ingredients.contains { $0.pantryID == item.id } }) }
         .sheet(isPresented: $adjusting) {
             RecipeAdjustmentView(original: current) { proposed in
                 guard store.acceptRevision(proposed, original: current) else { return false }
@@ -64,19 +64,74 @@ struct FinishMealView: View {
     @EnvironmentObject var store: PantryStore
     @Environment(\.dismiss) var dismiss
     let recipe: Recipe
-    @State private var usedUp: Set<String> = []
-    var items: [PantryItem] { store.pantry.filter { item in recipe.ingredients.contains { $0.pantryID == item.id } } }
+    @State private var updates: [PantryCompletion]
+    @State private var error: String?
+    @FocusState private var editingAmount: String?
+    init(recipe: Recipe, items: [PantryItem]) {
+        self.recipe = recipe
+        _updates = State(initialValue: items.map { PantryCompletion(item: $0) })
+    }
+    private var ready: Bool { updates.allSatisfy(\.isValid) }
     var body: some View {
         NavigationStack {
             Form {
-                Section { Text("That’s a good use of good food.").font(.system(size: 29, design: .serif)); Text("Which ingredients did you finish completely? We’ll remove only the ones you select. Keep anything you have left.").font(.subheadline).foregroundStyle(Palette.muted) }
-                Section("Used it all?") {
-                    ForEach(items) { item in Toggle(item.name, isOn: Binding(get: { usedUp.contains(item.id) }, set: { if $0 { usedUp.insert(item.id) } else { usedUp.remove(item.id) } })) }
-                    if items.isEmpty { Text("Your pantry doesn’t need updating.").foregroundStyle(Palette.muted) }
+                Section {
+                    Text("What’s left in your kitchen?").font(.system(size: 29, design: .serif))
+                    Text("Review each ingredient before saving your meal. You decide what remains; we won’t subtract recipe quantities.").font(.subheadline).foregroundStyle(Palette.muted)
                 }
-                Section { ActionButton(title: "Save this moment", symbol: "checkmark") { store.finish(recipe, remove: usedUp); if store.error == nil { dismiss() } }.accessibilityIdentifier("confirmCooked") }
-            }.scrollContentBackground(.hidden).pageStyle().navigationTitle("Made with what you had").navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+                ForEach($updates) { $update in
+                    Section {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(update.item.name).font(.headline)
+                            Text("In your pantry: \(update.item.quantity)").font(.subheadline).foregroundStyle(Palette.muted)
+                        }
+                        HStack(spacing: 8) {
+                            ForEach(IngredientUsage.allCases, id: \.self) { usage in
+                                Button {
+                                    update.usage = usage
+                                    if usage != .someLeft && editingAmount == update.id { editingAmount = nil }
+                                } label: {
+                                    Text(usage.label).font(.subheadline.weight(.medium)).multilineTextAlignment(.center)
+                                        .frame(maxWidth: .infinity, minHeight: 44)
+                                        .padding(.horizontal, 4).padding(.vertical, 6)
+                                        .background(update.usage == usage ? Palette.green : Palette.sage.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
+                                        .foregroundStyle(update.usage == usage ? .white : Palette.ink)
+                                }.buttonStyle(.plain)
+                                .accessibilityLabel("\(update.item.name): \(usage.label)")
+                                .accessibilityAddTraits(update.usage == usage ? .isSelected : [])
+                                .accessibilityIdentifier("usage-\(update.id)-\(usage.rawValue)")
+                            }
+                        }
+                        if update.usage == .someLeft {
+                            TextField("Amount remaining, e.g. half a bag", text: $update.remainingAmount)
+                                .focused($editingAmount, equals: update.id)
+                                .onChange(of: update.remainingAmount) { _, value in update.remainingAmount = String(value.prefix(60)) }
+                                .accessibilityLabel("Amount remaining for \(update.item.name)")
+                                .accessibilityIdentifier("remaining-\(update.id)")
+                            Text("Enter what you actually have left—even “a handful.” This replaces the recorded amount.").font(.caption).foregroundStyle(Palette.muted)
+                        } else if update.usage == .usedAll {
+                            Text("Will be removed from your pantry.").font(.caption).foregroundStyle(Palette.orange)
+                        } else if update.usage == .didntUse {
+                            Text("Stays in your pantry with its current amount.").font(.caption).foregroundStyle(Palette.muted)
+                        }
+                    }
+                }
+                if updates.isEmpty { Section { Text("This recipe has no ingredients currently in your pantry. There’s nothing to update.").foregroundStyle(Palette.muted) } }
+                Section {
+                    if !ready { Text("Review each ingredient and enter an amount wherever you chose Some left.").font(.caption).foregroundStyle(Palette.muted) }
+                    ActionButton(title: "Save this moment", symbol: "checkmark", disabled: !ready) {
+                        editingAmount = nil
+                        if store.finish(recipe, updates: updates) { dismiss() }
+                        else { error = store.error; store.error = nil }
+                    }.accessibilityIdentifier("confirmCooked")
+                } footer: { Text("Nothing changes until you save. Water and ingredients outside your pantry aren’t added automatically.") }
+            }.scrollDismissesKeyboard(.interactively).scrollContentBackground(.hidden).pageStyle()
+            .navigationTitle("Update your pantry").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.accessibilityIdentifier("cancelCooked") }
+                ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("Done") { editingAmount = nil } }
+            }
+            .alert("Couldn’t save meal", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) { Button("OK") {} } message: { Text(error ?? "") }
         }
     }
 }

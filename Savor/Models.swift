@@ -88,3 +88,23 @@ struct ScanResult: Decodable {
     let note: String
 }
 enum SavorError: LocalizedError { case message(String); var errorDescription: String? { if case let .message(s) = self { return s }; return nil } }
+
+
+enum IngredientUsage: String, CaseIterable {
+    case usedAll, someLeft, didntUse
+    var label: String {
+        switch self {
+        case .usedAll: return "Used it all"
+        case .someLeft: return "Some left"
+        case .didntUse: return "Didn’t use"
+        }
+    }
+}
+struct PantryCompletion: Identifiable {
+    let item: PantryItem
+    var usage: IngredientUsage?
+    var remainingAmount = ""
+    var id: String { item.id }
+    var cleanedAmount: String { remainingAmount.trimmingCharacters(in: .whitespacesAndNewlines) }
+    var isValid: Bool { usage != nil && (usage != .someLeft || (!cleanedAmount.isEmpty && cleanedAmount.count <= 60)) }
+}

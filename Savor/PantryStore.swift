@@ -68,12 +68,33 @@ import SwiftUI
         if let i = next.saved.firstIndex(where: { $0.id == r.id }) { next.saved[i] = r } else { next.saved.append(r) }
         commit(next)
     }
-    func finish(_ recipe: Recipe, remove ids: Set<String>) {
-        var next = state; var r = next.saved.first(where: { $0.id == recipe.id }) ?? recipe
+    @discardableResult func finish(_ recipe: Recipe, updates: [PantryCompletion]) -> Bool {
+        var next = state
+        var r = next.saved.first(where: { $0.id == recipe.id }) ?? recipe
+        guard r.cookedAt == nil else { error = "This meal has already been saved."; return false }
+        let expected = Set(next.pantry.filter { item in r.ingredients.contains { $0.pantryID == item.id } }.map(\.id))
+        let provided = Set(updates.map(\.id))
+        guard provided == expected, provided.count == updates.count,
+              updates.allSatisfy({ update in next.pantry.contains(update.item) }) else {
+            error = "Your pantry changed. Close this screen and review the ingredients again."; return false
+        }
+        guard updates.allSatisfy(\.isValid) else {
+            error = "Choose what happened to each ingredient. For Some left, enter a remaining amount of up to 60 characters."; return false
+        }
+        // Validate the entire review before changing any pantry item or meal history.
+        for update in updates {
+            switch update.usage {
+            case .usedAll: next.pantry.removeAll { $0.id == update.id }
+            case .someLeft:
+                if let index = next.pantry.firstIndex(where: { $0.id == update.id }) {
+                    next.pantry[index].quantity = update.cleanedAmount
+                }
+            case .didntUse, .none: break
+            }
+        }
         r.savedAt = r.savedAt ?? Date(); r.cookedAt = Date(); r.completedSteps = Array(r.steps.indices)
         if let i = next.saved.firstIndex(where: { $0.id == r.id }) { next.saved[i] = r } else { next.saved.append(r) }
-        next.pantry.removeAll { ids.contains($0.id) }
-        if commit(next) { recipes = [] }
+        if commit(next) { recipes = []; return true }; return false
     }
     func current(_ recipe: Recipe) -> Recipe { state.saved.first(where: { $0.id == recipe.id }) ?? recipe }
     func sampleRecipes() -> [Recipe] {

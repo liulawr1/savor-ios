@@ -31,6 +31,9 @@ final class SavorUITests: XCTestCase {
         app.buttons["saveRecipe"].tap()
         for index in 0..<4 { let step = app.buttons["step-\(index)"]; reveal(step); XCTAssertTrue(step.exists); step.tap() }
         let finish = app.buttons["finishCooking"]; reveal(finish); XCTAssertTrue(finish.isEnabled); finish.tap()
+        for id in ["spinach", "tomatoes", "chickpeas", "lemon", "oil"] {
+            let choice = app.buttons["usage-\(id)-didntUse"]; reveal(choice); choice.tap()
+        }
         let confirm = app.buttons["confirmCooked"]; reveal(confirm); confirm.tap()
         app.terminate(); app.launchArguments = ["--ui-testing"]; app.launch()
         app.tabBars.buttons["Recipe box"].tap()
@@ -184,6 +187,53 @@ final class SavorUITests: XCTestCase {
         app.buttons["settings"].tap(); let equipment = app.buttons["settingsEquipment"]; reveal(equipment); equipment.tap()
         XCTAssertEqual(app.switches["equipment-kettle"].value as? String, "1")
         XCTAssertEqual(app.switches["equipment-microwave"].value as? String, "0")
+    }
+
+    private func openSampleCompletion() {
+        app.launchArguments.append("--sample"); app.launch()
+        app.tabBars.buttons["Cook"].tap()
+        let generate = app.buttons["generateMeals"]; reveal(generate); generate.tap()
+        let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "recipeCard")).firstMatch; reveal(card); card.tap()
+        for index in 0..<4 { let step = app.buttons["step-\(index)"]; reveal(step); step.tap() }
+        let finish = app.buttons["finishCooking"]; reveal(finish); finish.tap()
+    }
+    private func checkPantryAmount(_ name: String, expected: String) {
+        let item = app.buttons["ingredient-\(name)"]; reveal(item); XCTAssertTrue(item.exists); item.tap()
+        XCTAssertEqual(app.textFields["Quantity"].value as? String, expected)
+        app.buttons["Cancel"].tap()
+    }
+    func testPostCookingMixedUpdatesPersist() throws {
+        openSampleCompletion()
+        let partial = app.buttons["usage-spinach-someLeft"]; reveal(partial); partial.tap()
+        let amount = app.textFields["remaining-spinach"]; reveal(amount); amount.tap(); amount.typeText("a small handful"); app.buttons["Done"].tap()
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = "Post-cooking pantry review"; shot.lifetime = .keepAlways; add(shot)
+        for (id, choice) in [("tomatoes", "usedAll"), ("chickpeas", "didntUse"), ("lemon", "didntUse"), ("oil", "didntUse")] {
+            let button = app.buttons["usage-\(id)-\(choice)"]; reveal(button); button.tap()
+        }
+        let confirm = app.buttons["confirmCooked"]; reveal(confirm); XCTAssertTrue(confirm.isEnabled); confirm.tap()
+        app.terminate(); app.launchArguments = ["--ui-testing"]; app.launch()
+        checkPantryAmount("Spinach", expected: "a small handful")
+        checkPantryAmount("Canned chickpeas", expected: "1 can")
+        for _ in 0..<6 { if app.textFields["pantrySearch"].isHittable { break }; app.swipeDown() }
+        let search = app.textFields["pantrySearch"]; search.tap(); search.typeText("Cherry tomatoes")
+        XCTAssertFalse(app.buttons["ingredient-Cherry tomatoes"].exists)
+        XCTAssertTrue(app.staticTexts["Nothing here yet."].exists)
+        app.terminate(); app.launch()
+        app.tabBars.buttons["Recipe box"].tap()
+        reveal(app.staticTexts["Cooked"]); XCTAssertTrue(app.staticTexts["Cooked"].exists)
+    }
+    func testPostCookingBlankAmountAndCancelPreservePantry() throws {
+        openSampleCompletion()
+        let partial = app.buttons["usage-spinach-someLeft"]; reveal(partial); partial.tap()
+        for id in ["tomatoes", "chickpeas", "lemon", "oil"] { let choice = app.buttons["usage-\(id)-didntUse"]; reveal(choice); choice.tap() }
+        let confirm = app.buttons["confirmCooked"]; reveal(confirm); XCTAssertFalse(confirm.isEnabled)
+        app.buttons["cancelCooked"].tap()
+        app.terminate(); app.launchArguments = ["--ui-testing"]; app.launch()
+        checkPantryAmount("Spinach", expected: "1 bag")
+        checkPantryAmount("Cherry tomatoes", expected: "1 cup")
+        app.tabBars.buttons["Recipe box"].tap()
+        XCTAssertFalse(app.staticTexts["Cooked"].exists)
+        XCTAssertTrue(app.staticTexts["4 steps complete"].exists)
     }
 
 }

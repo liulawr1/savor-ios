@@ -33,7 +33,7 @@ If you change your local server settings, run `npm run setup` and rebuild the ap
 - Saved recipes, sharing, step checklists, persistent progress, and meal completion.
 - **Kitchen equipment profile**: save microwave, stovetop, oven, and kettle availability; all generated meals and revisions declare required equipment and are checked against the current profile.
 - **Make this work**: adjust a generated recipe for a missing ingredient or different equipment, review the changes and full revised recipe, then save both versions with separate progress.
-- Explicit selection of ingredients used up; no guessed quantity deductions.
+- Post-cooking review with **Used it all**, **Some left**, and **Didn’t use**. Remaining amounts are entered manually; there are no guessed deductions.
 - A labeled offline sample kitchen with three prepared recipes. Samples are excluded from real meals-made counts.
 - Custom native bowl illustration and app icon. Illustrations are not generated photos of the suggested meal.
 
@@ -64,6 +64,25 @@ Open a live AI recipe from **Cook** or **Recipe box**, then tap **Make this work
 Accepting saves the original and revised recipes together in Recipe box. The original keeps its progress; the revised recipe starts a fresh checklist. Closing, cancelling, or discarding does not save a revision. Failed requests leave the original unchanged. The server uses current pantry availability rather than assuming old recipe ingredients are still present. Ingredient references, exclusions, time, servings, and shopping limits are validated; cooking and dietary semantics still need user review. Sample recipes remain offline and cannot be adjusted.
 
 After pulling this update, restart the Node server and rebuild the app in Xcode. Public Release networking remains disabled until hosting and authentication are implemented.
+
+## Update your pantry after cooking
+
+Complete the recipe checklist and tap **I made this**. For each ingredient currently in your pantry, choose:
+
+- **Used it all:** remove the ingredient.
+- **Some left:** enter what remains, such as “half a bag” or “a handful.” This replaces the pantry quantity with your text; the app never subtracts the recipe amount.
+- **Didn’t use:** keep the ingredient and its quantity unchanged.
+
+Every listed ingredient needs a choice. Some left requires a nonblank amount of up to 60 characters. Tap **Save this moment** to save the pantry updates and completed meal together. Use soon flags and other item details are preserved for remaining ingredients. Water, missing shopping items, and recipe ingredients no longer in your pantry are not added automatically.
+
+**Cancel** discards this review without changing pantry amounts or marking the meal cooked; the cooking checklist keeps its existing progress. If a pantry item changed while you were reviewing it, close and reopen the review. A failed save cannot apply only part of the update. This feature works offline and makes no Gemini calls.
+
+To exercise completion validation, literal amounts, persistence, stale reviews, and atomic failure behavior with the real Swift store and temporary data:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swiftc -parse-as-library Savor/Models.swift Savor/PantryStore.swift scripts/check-completion.swift -o /tmp/savor-check-completion
+/tmp/savor-check-completion
+```
 
 ## Fresh setup after cloning
 
