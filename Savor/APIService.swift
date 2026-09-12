@@ -3,6 +3,7 @@ import Foundation
 struct APIService {
     private var baseURL: String {
         #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing"), let url = ProcessInfo.processInfo.environment["SAVOR_TEST_SERVER_URL"] { return url }
         return Bundle.main.object(forInfoDictionaryKey: "SavorServerURL") as? String ?? ""
         #else
         return ""
@@ -10,6 +11,7 @@ struct APIService {
     }
     private var token: String {
         #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing"), let token = ProcessInfo.processInfo.environment["SAVOR_TEST_CLIENT_TOKEN"] { return token }
         return Bundle.main.object(forInfoDictionaryKey: "SavorClientToken") as? String ?? ""
         #else
         return ""
@@ -53,4 +55,20 @@ struct APIService {
         struct Result: Decodable { let recipes: [Recipe] }
         return try JSONDecoder().decode(Result.self, from: await send(path: "v1/meals", body: JSONSerialization.data(withJSONObject: input))).recipes
     }
+    func adjust(recipe: Recipe, items: [PantryItem], preferences: CookingPreferences, request: String, excludedIDs: Set<String>) async throws -> Recipe {
+        struct Input: Encodable {
+            let original: Recipe
+            let items: [PantryItem]
+            let minutes: Int
+            let servings: Int
+            let style: String
+            let allowShopping: Bool
+            let adjustment: String
+            let excludedIDs: [String]
+        }
+        struct Result: Decodable { let recipe: Recipe }
+        let input = Input(original: recipe, items: items, minutes: preferences.minutes, servings: preferences.servings, style: preferences.style, allowShopping: preferences.allowShopping, adjustment: request, excludedIDs: excludedIDs.sorted())
+        return try JSONDecoder().decode(Result.self, from: await send(path: "v1/adjust", body: JSONEncoder().encode(input))).recipe
+    }
+
 }

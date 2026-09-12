@@ -25,7 +25,7 @@ struct SettingsView: View {
                 }
                 Section("Your ingredients, your choice") {
                     Text("Pantry items, saved recipes, and progress stay on this device. Scanned photos are not saved by Savor’s server.")
-                    Text("Scanning sends your selected photo to Google. Meal suggestions send your ingredient list and preferences. Google may use free-tier inputs and outputs to improve its products, including human review. Don’t include personal or sensitive information.")
+                    Text("Scanning sends your selected photo to Google. Meal suggestions send your ingredient list and preferences. Adjustments also send the recipe and your change request. Google may use free-tier inputs and outputs to improve its products, including human review. Don’t include personal or sensitive information.")
                     Link("Google Gemini data-use terms", destination: URL(string: "https://ai.google.dev/gemini-api/terms")!)
                     Text("AI can make mistakes. Confirm scanned items and check recipe ingredients. Savor doesn’t assess freshness or guarantee allergen-free meals.")
                 }.font(.subheadline)

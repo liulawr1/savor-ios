@@ -31,11 +31,26 @@ If you change your local server settings, run `npm run setup` and rebuild the ap
 - Pantry-only requests include no presumed oil, salt, or seasonings. Water is allowed.
 - Server-side validation of pantry IDs, serving counts, time limits, output bounds, and the maximum of three missing ingredients per recipe.
 - Saved recipes, sharing, step checklists, persistent progress, and meal completion.
+- **Make this work**: adjust a generated recipe for a missing ingredient or different equipment, review the changes and full revised recipe, then save both versions with separate progress.
 - Explicit selection of ingredients used up; no guessed quantity deductions.
 - A labeled offline sample kitchen with three prepared recipes. Samples are excluded from real meals-made counts.
 - Custom native bowl illustration and app icon. Illustrations are not generated photos of the suggested meal.
 
 Recipe suggestions are not guaranteed to be nutritionally balanced, allergen-free, safe, or feasible. Check ingredient labels, freshness, quantities, and cooking instructions. **Use soon** is an intention, not a shelf-life calculation. No expiry prediction, environmental-savings estimate, or nutrition estimate is made.
+
+## Adjust a recipe
+
+Open a live AI recipe from **Cook** or **Recipe box**, then tap **Make this work** below its explanation.
+
+1. Describe the change, such as “Can I use a microwave?” or “I’m out of lemon.” There is also a microwave shortcut.
+2. Check the time limit, servings, cooking style, and extras setting. New recipes remember their generation preferences. Older recipes still open normally and ask you to review fallback preferences.
+3. Optionally expand **Leave out ingredients** to explicitly exclude pantry items from this revision. This does not edit your pantry.
+4. Tap **Adjust recipe**. This makes one Gemini request through `/v1/adjust`, sharing the current pantry, original recipe, preferences, and change request.
+5. Review **What changed**, the ingredients, and the new steps. Choose **Use this version**, **Edit my request**, or **Keep original**.
+
+Accepting saves the original and revised recipes together in Recipe box. The original keeps its progress; the revised recipe starts a fresh checklist. Closing, cancelling, or discarding does not save a revision. Failed requests leave the original unchanged. The server uses current pantry availability rather than assuming old recipe ingredients are still present. Ingredient references, exclusions, time, servings, and shopping limits are validated; cooking and dietary semantics still need user review. Sample recipes remain offline and cannot be adjusted.
+
+After pulling this update, restart the Node server and rebuild the app in Xcode. Public Release networking remains disabled until hosting and authentication are implemented.
 
 ## Fresh setup after cloning
 
@@ -84,13 +99,27 @@ cd server
 npm test
 ```
 
-Backend tests use mocked upstream responses and do not call Gemini. In Xcode, **⌘U** runs simulator UI tests with an isolated test-data directory. See [the validation record](docs/VALIDATION.md) and [demo walkthrough](docs/DEMO.md).
+Backend tests use mocked upstream responses and do not call Gemini. Run all simulator UI tests with:
+
+```sh
+./scripts/test-ios.sh
+```
+
+This starts a deterministic local HTTP fixture on port 8790, runs Xcode tests using an isolated data directory, and stops the fixture afterward. It never calls Gemini or changes your personal pantry. To use **⌘U** in Xcode instead, first run `node server/test/ui-fixture.mjs` in a separate Terminal. Only Debug UI-test launches can use the fixture connection override. See [the validation record](docs/VALIDATION.md) and [demo walkthrough](docs/DEMO.md).
 
 The opt-in `scripts/check-live.mjs` makes a real Gemini request for the documented sample ingredient list and records the validated result in `docs/live-validation.json`:
 
 ```sh
 node --env-file=server/.env scripts/check-live.mjs
 ```
+
+To opt into one live adjustment test (microwave cooking without lemon), run:
+
+```sh
+node --env-file=server/.env scripts/check-adjustment-live.mjs
+```
+
+It uses the canned ingredient list from the earlier live validation, exercises the actual HTTP adjustment route, and records `docs/adjustment-live-validation.json`. It does not read or modify your pantry.
 
 To create a private GitHub repository after reviewing the local commit:
 

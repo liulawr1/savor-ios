@@ -12,3 +12,7 @@ Aim for 90–120 seconds. Use the actual iPhone simulator UI and clearly identif
 Before recording, test a real food photo, an unclear photo, a non-food image, a limited pantry, and an ingredient marked Use soon. Review recipes before cooking. Never show keys, `.env`, `Local.xcconfig`, or a terminal that contains credentials.
 
 The offline sample kitchen is a rehearsal tool. Reset it in Settings if you remove its ingredients. Its meals are explicitly excluded from the real meals-made count.
+
+## Optional adjustment moment
+
+After opening a live suggestion, tap **Make this work** and enter “I only have a microwave and I’m out of lemon.” Keep compatible cooking limits (for example Vegetarian or Anything), tap **Adjust recipe**, and show **What changed** plus the revised steps. Tap **Use this version**, then show both recipes in Recipe box. This can replace part of the cooking-checklist segment to keep the video near two minutes. It is a live AI call; sample kitchen recipes cannot be revised.

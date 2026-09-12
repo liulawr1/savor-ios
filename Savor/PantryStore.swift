@@ -44,6 +44,16 @@ import SwiftUI
     func update(_ item: PantryItem) { var next = state; guard let i = next.pantry.firstIndex(where: { $0.id == item.id }) else { return }; next.pantry[i] = item; if commit(next) { recipes = [] } }
     func remove(_ ids: Set<String>) { var next = state; next.pantry.removeAll { ids.contains($0.id) }; if commit(next) { recipes = [] } }
     func save(_ recipe: Recipe) { var next = state; if !next.saved.contains(where: { $0.id == recipe.id }) { var r = recipe; r.savedAt = Date(); next.saved.append(r); commit(next) } }
+    @discardableResult func acceptRevision(_ revision: Recipe, original: Recipe) -> Bool {
+        var next = state
+        if !next.saved.contains(where: { $0.id == original.id }) {
+            var kept = original; kept.savedAt = kept.savedAt ?? Date(); next.saved.append(kept)
+        }
+        var fresh = revision
+        fresh.savedAt = Date(); fresh.completedSteps = []; fresh.cookedAt = nil
+        next.saved.append(fresh)
+        return commit(next)
+    }
     func unsave(_ id: String) { var next = state; next.saved.removeAll { $0.id == id }; commit(next) }
     func toggleStep(_ index: Int, recipe: Recipe) {
         var next = state; var r = next.saved.first(where: { $0.id == recipe.id }) ?? recipe

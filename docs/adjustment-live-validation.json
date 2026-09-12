@@ -1,0 +1,150 @@
+{
+  "checkedAt": "2026-09-12T17:37:31.357Z",
+  "model": "gemini-3.6-flash",
+  "request": {
+    "items": [
+      {
+        "id": "chickpeas",
+        "name": "Canned chickpeas",
+        "quantity": "1 can",
+        "category": "Protein",
+        "useSoon": false
+      },
+      {
+        "id": "spinach",
+        "name": "Spinach",
+        "quantity": "2 handfuls",
+        "category": "Vegetables",
+        "useSoon": true
+      },
+      {
+        "id": "tomatoes",
+        "name": "Cherry tomatoes",
+        "quantity": "1 cup",
+        "category": "Vegetables",
+        "useSoon": true
+      },
+      {
+        "id": "oil",
+        "name": "Olive oil",
+        "quantity": "1 tablespoon",
+        "category": "Other",
+        "useSoon": false
+      },
+      {
+        "id": "lemon",
+        "name": "Lemon",
+        "quantity": "1",
+        "category": "Fruit",
+        "useSoon": false
+      }
+    ],
+    "minutes": 15,
+    "servings": 2,
+    "style": "Vegetarian",
+    "allowShopping": false,
+    "original": {
+      "id": "f37a2595-5f11-4b86-ba85-b4ee698cf395",
+      "title": "Warm Chickpea and Spinach Salad",
+      "description": "A quick and warm vegetarian skillet dish featuring soft chickpeas, wilted spinach, and sweet cherry tomatoes with a splash of fresh lemon juice.",
+      "minutes": 10,
+      "servings": 2,
+      "ingredients": [
+        {
+          "pantryID": "oil",
+          "name": "Olive oil",
+          "quantity": "1 tablespoon"
+        },
+        {
+          "pantryID": "chickpeas",
+          "name": "Canned chickpeas",
+          "quantity": "1 can"
+        },
+        {
+          "pantryID": "tomatoes",
+          "name": "Cherry tomatoes",
+          "quantity": "1 cup"
+        },
+        {
+          "pantryID": "spinach",
+          "name": "Spinach",
+          "quantity": "2 handfuls"
+        },
+        {
+          "pantryID": "lemon",
+          "name": "Lemon",
+          "quantity": "1"
+        },
+        {
+          "pantryID": "water",
+          "name": "Water",
+          "quantity": "1 tablespoon"
+        }
+      ],
+      "steps": [
+        "Heat olive oil in a skillet over medium heat. Add the rinsed canned chickpeas and cherry tomatoes.",
+        "Sauté for 4 to 5 minutes until the tomatoes begin to soften and burst slightly.",
+        "Add the fresh spinach and 1 tablespoon of water to the skillet, stirring gently until the spinach wilts, about 2 minutes.",
+        "Remove from heat, squeeze the fresh lemon juice over the top, stir to combine, and serve warm."
+      ],
+      "why": "This recipe makes great use of your spinach and cherry tomatoes, which were marked to use soon, combining them into a simple, warm 10-minute meal.",
+      "isSample": false
+    },
+    "adjustment": "I only have a microwave and I am out of lemon. Adapt this recipe without lemon, using microwave-safe equipment.",
+    "excludedIDs": []
+  },
+  "result": {
+    "recipe": {
+      "id": "bd2e8413-a334-42b9-a9fe-afdff874d74b",
+      "title": "Microwave Warm Chickpea, Spinach, and Tomato Salad",
+      "description": "A fast and warm microwave dish featuring soft chickpeas, wilted spinach, and tender cherry tomatoes gently warmed with olive oil.",
+      "minutes": 10,
+      "servings": 2,
+      "ingredients": [
+        {
+          "pantryID": "chickpeas",
+          "name": "Canned chickpeas",
+          "quantity": "1 can"
+        },
+        {
+          "pantryID": "tomatoes",
+          "name": "Cherry tomatoes",
+          "quantity": "1 cup"
+        },
+        {
+          "pantryID": "spinach",
+          "name": "Spinach",
+          "quantity": "2 handfuls"
+        },
+        {
+          "pantryID": "oil",
+          "name": "Olive oil",
+          "quantity": "1 tablespoon"
+        },
+        {
+          "pantryID": "water",
+          "name": "Water",
+          "quantity": "1 tablespoon"
+        }
+      ],
+      "steps": [
+        "Drain and rinse the canned chickpeas.",
+        "In a large microwave-safe bowl, combine the drained chickpeas, cherry tomatoes, and olive oil.",
+        "Cover the bowl loosely with a microwave-safe lid or plate and microwave on HIGH for 2 minutes, until the tomatoes begin to soften.",
+        "Carefully add the fresh spinach and 1 tablespoon of water to the bowl, tossing gently with the warm chickpea mixture.",
+        "Cover loosely again and microwave on HIGH for an additional 1 to 2 minutes until the spinach is wilted and the dish is warm throughout.",
+        "Stir well to combine the warm vegetables and olive oil, then serve immediately."
+      ],
+      "why": "This microwave adaptation efficiently uses your spinach and cherry tomatoes, which are marked to use soon, while omitting the lemon per your request.",
+      "isSample": false,
+      "preferences": {
+        "minutes": 15,
+        "servings": 2,
+        "style": "Vegetarian",
+        "allowShopping": false
+      },
+      "adjustmentSummary": "Adapted the recipe for microwave cooking using a microwave-safe bowl instead of a stovetop skillet, and omitted the lemon juice completely.",
+      "originalRecipeID": "f37a2595-5f11-4b86-ba85-b4ee698cf395"
+    }
+  }
+}
