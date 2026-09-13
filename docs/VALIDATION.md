@@ -20,6 +20,13 @@ The configured account rejected `gemini-2.5-flash` generation as unavailable to 
 
 The image test used [Red Apple by Abhijit Tembhekar](https://commons.wikimedia.org/wiki/File:Red_Apple.jpg), licensed under [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). The unmodified image was fetched into memory for the test and is not included in the app or repository.
 
+## Larger-pantry request fix — September 12, 2026
+
+- Reproduced the reported Gemini HTTP 400 with 15 invented pantry ingredients and random UUIDs. The previous one-item live check did not cover this case. No saved user pantry was transmitted for diagnostics.
+- Removed the expanding pantry-ID enum from the nested response schema; IDs still travel in the request context, and server validation still rejects unknown IDs and unapproved shopping ingredients. This applies to both meal generation and recipe adjustments.
+- The same 15-ingredient synthetic pantry succeeded against Gemini after the change, returning three validated recipes. All 28 backend tests passed, including a 30-UUID pantry regression and separate handling of provider HTTP 400 versus key/model-access errors.
+- Restarted the local development server with the fix. No Swift changes or app rebuild are required; the user's exact simulator request still needs their retry.
+
 ## Remaining limits
 
 - Physical iPhone camera capture, campus-network connectivity, signing, TestFlight, and App Store distribution have not been tested.

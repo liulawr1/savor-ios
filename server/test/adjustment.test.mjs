@@ -19,7 +19,7 @@ test('adjustments use current pantry, remove exclusions, and strip historical pe
  assert.ok(validateAdjustment({ ...input, items: [peas], excludedIDs: [] }));
  const spec = adjustmentRequest(request);
  assert.deepEqual(JSON.parse(spec.parts[0].text), request);
- assert.deepEqual(spec.schema.properties.recipes.items.properties.ingredients.items.properties.pantryID.enum, ['peas', 'water']);
+ assert.deepEqual(spec.schema.properties.recipes.items.properties.ingredients.items.properties.pantryID, { type: 'string' });
  assert.equal(spec.schema.properties.recipes.maxItems, 1);
  assert.match(spec.instruction, /microwave/);
 });

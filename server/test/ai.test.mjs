@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { validateMeals, validateScan, validateMealOutput, validateScanOutput, generate, mealRequest, scanRequest } from '../ai.mjs';
 export const input = { items: [{ id: 'peas', name: 'Canned chickpeas', quantity: '1 can', category: 'Protein', useSoon: true }], minutes: 15, servings: 2, style: 'Anything', allowShopping: false, equipment: ['stovetop', 'microwave'] };
 const recipe = { requiredEquipment: ['stovetop'], title: 'Warm chickpeas', description: 'A simple pantry bowl.', minutes: 10, servings: 2, ingredients: [{ pantryID: 'peas', name: 'Canned chickpeas', quantity: '1 can' }], steps: ['Drain and rinse the chickpeas.', 'Warm gently with a splash of water and serve.'], why: 'Uses your chickpeas.' };
@@ -50,4 +51,32 @@ test('provider refusals, truncation, malformed responses, and quota failures are
  await assert.rejects(generate(mealRequest(input), { apiKey: 'test-key', fetchImpl: async () => new Response('secret upstream detail', { status: 429 }) }), e => e.status === 503 && !e.message.includes('secret') && !e.message.includes('billing'));
  const controller = new AbortController(); controller.abort();
  await assert.rejects(generate(mealRequest(input), { apiKey: 'test-key', signal: controller.signal, fetchImpl: async () => { throw new Error('private details'); } }), e => e.status === 504);
+});
+
+test('full UUID pantries keep a bounded schema and enforce ingredient membership after generation', async () => {
+ const full = validateMeals({ ...input, items: Array.from({ length: 30 }, (_, i) => ({ ...input.items[0], id: randomUUID(), name: `Test ingredient ${i}` })) });
+ const spec = mealRequest(full);
+ // Repeating a long UUID enum in the nested recipe arrays caused live HTTP 400s.
+ assert.deepEqual(spec.schema, mealRequest(input).schema);
+ const returnedRecipe = { ...recipe, ingredients: [{ pantryID: full.items[29].id, name: full.items[29].name, quantity: '1 can' }] };
+ const output = await generate(spec, { apiKey: 'test-key', fetchImpl: async (_, options) => {
+  const body = JSON.parse(options.body);
+  assert.deepEqual(JSON.parse(body.contents[0].parts[0].text).items, full.items);
+  return Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ recipes: [returnedRecipe] }) }] } }] });
+ } });
+ assert.equal(validateMealOutput(output, full).recipes[0].ingredients[0].pantryID, full.items[29].id);
+ for (const pantryID of [randomUUID(), 'missing']) {
+  assert.throws(() => validateMealOutput({ recipes: [{ ...returnedRecipe, ingredients: [{ ...returnedRecipe.ingredients[0], pantryID }] }] }, full), e => e.status === 502);
+ }
+});
+
+test('invalid provider requests are distinguished from credential and model failures without leaking details', async () => {
+ for (const status of [400, 401, 403, 404]) {
+  await assert.rejects(generate(mealRequest(input), { apiKey: 'test-key', fetchImpl: async () => new Response('private provider details', { status }) }), e => {
+   assert.ok(!e.message.includes('private provider details'));
+   assert.equal(e.status, status === 400 ? 502 : 503);
+   assert.equal(e.message.includes('Gemini key'), status !== 400);
+   return true;
+  });
+ }
 });
